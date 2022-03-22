@@ -1,0 +1,9 @@
+# CET files
+BetterOpticalCamo.log
+db.sqlite3
+
+# Mod files
+settings.json
+
+# Packaging output
+BetterOpticalCamo.zip
