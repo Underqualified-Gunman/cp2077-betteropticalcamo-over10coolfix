@@ -1,6 +1,10 @@
 Better Optical Camo
 -----
 
+### Version 1.2.1
+* Removed mandatory redscript dependency
+* Improved readme and mod archive file structure for easier installation
+
 ### Version 1.2
 * Now requires redscript
 * Added compatibility with "Custom Quickslots"

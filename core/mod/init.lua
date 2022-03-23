@@ -36,37 +36,28 @@ registerForEvent('onInit', function()
         local player = Game.GetPlayer()
 
         if (settings.deactivateOnVehicleEnter) then
-            player:DeactivateOpticalCamo()
+            deactivateOpticalCamo(player)
         end
     end)
 
     -- toggle the cloak by pressing the combat gadget button again
     Observe('PlayerPuppet', 'OnAction', function(_, action)
+        local player = Game.GetPlayer()
+
         local actionName = Game.NameToString(ListenerAction.GetName(action))
         local actionType = ListenerAction.GetType(action).value
 
-        local player = Game.GetPlayer()
-
-        if (
-            (settings.enableToggling) and
-                (actionName == 'UseCombatGadget') and
-                (actionType == 'BUTTON_PRESSED') and
-                (player:IsOpticalCamoActive())
-        ) then
-            player:DeactivateOpticalCamo()
+        if (settings.enableToggling and actionName == 'UseCombatGadget' and actionType == 'BUTTON_PRESSED' and isOpticalCamoActive(player)) then
+            deactivateOpticalCamo(player)
         end
     end)
 
-    -- compatibility with "Custom Quickslots" for toggle the cloak
+    -- compatibility with "Custom Quickslots" for toggling the cloak if selected
     ObserveBefore('HotkeyItemController', 'UseEquippedItem', function(this)
         local player = Game.GetPlayer()
 
-        if (
-            (settings.enableToggling) and
-                (this:IsOpticalCamoCyberwareAbility()) and
-                (player:IsOpticalCamoActive())
-        ) then
-            player:DeactivateOpticalCamo()
+        if (settings.enableToggling and this:IsOpticalCamoCyberwareAbility() and isOpticalCamoActive(player)) then
+            deactivateOpticalCamo(player)
         end
     end)
 
@@ -90,6 +81,28 @@ function setOpticalCamoDuration(duration)
     setFlatAndUpdate('BaseStatusEffect.OpticalCamoPlayerBuffEpic_inline1.value', duration)
     setFlatAndUpdate('BaseStatusEffect.OpticalCamoPlayerBuffRare_inline1.value', duration)
     setFlatAndUpdate('BaseStatusEffect.OpticalCamoPlayerBuffLegendary_inline1.value', duration)
+end
+
+function deactivateOpticalCamo(entity)
+    local entityID = entity:GetEntityID()
+    local statusEffectSystem = Game.GetStatusEffectSystem()
+
+    statusEffectSystem:RemoveStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.Cloaked"))
+    statusEffectSystem:RemoveStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffBase"))
+    statusEffectSystem:RemoveStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffRare"))
+    statusEffectSystem:RemoveStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffEpic"))
+    statusEffectSystem:RemoveStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffLegendary"))
+end
+
+function isOpticalCamoActive(entity)
+    local entityID = entity:GetEntityID()
+    local statusEffectSystem = Game.GetStatusEffectSystem()
+
+    return statusEffectSystem:HasStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.Cloaked")) or
+        statusEffectSystem:HasStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffBase")) or
+        statusEffectSystem:HasStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffRare")) or
+        statusEffectSystem:HasStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffEpic")) or
+        statusEffectSystem:HasStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffLegendary"))
 end
 
 --------------------------------

@@ -1,6 +1,6 @@
 Better Optical Camo
 =====
-Version 1.3
+Version 1.2.1
 
 [Better Optical Camo at Nexus Mods](https://www.nexusmods.com/cyberpunk2077/mods/4159)
 
@@ -11,32 +11,30 @@ Improves the optical camo by allowing the player to change
 
 The settings can be found in the "Mods" menu entry under "Better Optical Camo"
 
+Compatible with: (May require correct addon to be installed)
+	- "Custom Quickslots"
+
 -----
 
 Dependencies:
 	- Cyber Engine Tweaks
 	- Native Settings UI
-	- Redscript
+	- (Optional) redscript
 
 -----
 
 Installation:
-	- Extract the downloaded ZIP and move the filesthe game directory
-	- If it doesn't work, make sure you have installed it correctly by finding a file located at "[Game Directory]\bin\x64\plugins\cyber_engine_tweaks\mods\BetterOpticalCamo\init.lua"
+	- Extract the downloaded ZIP and copy the contents of the "Core Mod" directory into the game directory
+	- (Optional) If you use "Custom Quickslots", also copy the contents of "Compatibility Addons\Custom Quickslots" into the game directory
 
 -----
 
 Key Bindings:
-	- Toggling: Combat Gadget key; middle button on mouse by default
+	- Toggling: Combat Gadget key (middle mouse button by default)
 
 -----
 
-"Better Optical Camo" functionality is compatible with the following mods:
-	- Custom Quickslots
-
------
-
-Changing certain Settings requires the last checkpoint to be loaded:
+Changing certain settings requires the last checkpoint to be reloaded:
 	- Optical Camo Cooldown
 	- Infinite Optical Camo Duration
 	- Optical Camo Duration
