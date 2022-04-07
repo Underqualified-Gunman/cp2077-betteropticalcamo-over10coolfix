@@ -92,6 +92,7 @@ function deactivateOpticalCamo(entity)
     statusEffectSystem:RemoveStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffRare"))
     statusEffectSystem:RemoveStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffEpic"))
     statusEffectSystem:RemoveStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffLegendary"))
+    statusEffectSystem:RemoveStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.PerfectCloak"))
 end
 
 function isOpticalCamoActive(entity)
@@ -102,7 +103,8 @@ function isOpticalCamoActive(entity)
         statusEffectSystem:HasStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffBase")) or
         statusEffectSystem:HasStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffRare")) or
         statusEffectSystem:HasStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffEpic")) or
-        statusEffectSystem:HasStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffLegendary"))
+        statusEffectSystem:HasStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.OpticalCamoPlayerBuffLegendary")) or
+        statusEffectSystem:HasStatusEffect(entityID, TweakDBID.new("BaseStatusEffect.PerfectCloak"))
 end
 
 --------------------------------

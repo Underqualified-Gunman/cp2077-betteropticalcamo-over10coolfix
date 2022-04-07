@@ -1,6 +1,9 @@
 Better Optical Camo
 -----
 
+### Version 1.2.2
+* Improved cloak toggling
+
 ### Version 1.2.1
 * Removed mandatory redscript dependency
 * Improved readme and mod archive file structure for easier installation
