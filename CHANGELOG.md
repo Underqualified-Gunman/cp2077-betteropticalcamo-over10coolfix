@@ -1,6 +1,13 @@
 Better Optical Camo
 -----
 
+### Version 2.1.0
+* Allow toggling to activate camo
+* Adjust options and modifiers to make more sense
+* Add option to keep camo active after energy runs out
+* Change state of combat gadget action widget
+* Move compatibility-stuff into main mod
+
 ### Version 2.0.0
 * Support for Patch 2.0
 * Adjusted available options to new Optical Camo-cyberware

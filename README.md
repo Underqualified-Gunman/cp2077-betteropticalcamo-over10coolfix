@@ -1,6 +1,6 @@
 Better Optical Camo
 =====
-Version 2.0.0
+Version 2.1.0
 
 [Better Optical Camo at Nexus Mods](https://www.nexusmods.com/cyberpunk2077/mods/4159)
 
@@ -15,15 +15,17 @@ enemies from combat after a (configurable) delay.
 
 The settings can be found in the "Mods" menu entry under "Better Optical Camo"
 
-#### Compatible with (Require an compatibility-addon to be installed)
-* "Custom Quickslots"
-
 -----
 
 #### Dependencies
 * Cyber Engine Tweaks
 * Native Settings UI
-* redscript (Optional; See notes for installation and "Custom Quickslots")
+* redscript (Optional)
+
+-----
+
+#### Compatiblity-List
+* Custom Quickslots
 
 -----
 
