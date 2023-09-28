@@ -10,8 +10,8 @@ function GetOpticalCamoManager()
     return OpticalCamoManager
 end
 
-if (OpticalCamoManager ~= nil) then
-    print("ERROR: OpticalCamoManager ~= nil")
+if (OpticalCamoManager == nil) then
+    print("ERROR: OpticalCamoManager == nil")
 end
 
 registerForEvent("onTweak", function()
