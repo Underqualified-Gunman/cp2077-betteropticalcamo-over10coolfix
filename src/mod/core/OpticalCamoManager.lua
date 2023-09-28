@@ -137,7 +137,7 @@ OpticalCamoManager.Update =
                 local statPoolsSystem = Game.GetStatPoolsSystem()
                 local opticalCamoCharges = statPoolsSystem:GetStatPoolValue(player:GetEntityID(), "OpticalCamoCharges")
 
-                if (opticalCamoCharges < 0.01) then
+                if ((opticalCamoCharges < 0.01) and (not m_settingsManager:GetValue("opticalCamoKeepActiveAfterDepletion"))) then
                     this:DeactivateOpticalCamo(player)
                 end
             end

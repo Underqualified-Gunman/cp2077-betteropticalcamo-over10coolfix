@@ -8,6 +8,7 @@ local k_defaultSettings = {
     opticalCamoChargesDecayRateModifier = 1,
     opticalCamoChargesRegenRateModifier = 1,
     opticalCamoChargesUseMinimalDecayRate = false,
+    opticalCamoKeepActiveAfterDepletion = false,
     opticalCamoRechargeImmediate = false,
     combatCloak = false,
     combatCloakDelay = 1.5
@@ -101,6 +102,17 @@ function createSettingsMenu()
         k_defaultSettings.opticalCamoChargesUseMinimalDecayRate,
         function(state)
             m_pendingSettings.opticalCamoChargesUseMinimalDecayRate = state
+        end)
+
+    -- nativeSettings.addSwitch(path, label, desc, currentValue, defaultValue, callback, optionalIndex)
+    nativeSettings.addSwitch(
+        "/BetterOpticalCamo/Core",
+        localizationManager:GetTranslation("settings.opticalCamoKeepActiveAfterDepletion.label"),
+        localizationManager:GetTranslation("settings.opticalCamoKeepActiveAfterDepletion.description"),
+        m_activeSettings.opticalCamoKeepActiveAfterDepletion,
+        k_defaultSettings.opticalCamoKeepActiveAfterDepletion,
+        function(state)
+            m_pendingSettings.opticalCamoKeepActiveAfterDepletion = state
         end)
 
     -- nativeSettings.addSwitch(path, label, desc, currentValue, defaultValue, callback, optionalIndex)
