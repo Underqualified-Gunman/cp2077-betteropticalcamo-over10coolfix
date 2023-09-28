@@ -290,13 +290,13 @@ OpticalCamoManager.ApplySettings =
             registerPlayerStatsModifier(player, "OpticalCamoChargesDecayRate", "Multiplier", 0.025)
         else
             registerPlayerStatsModifier(player, "OpticalCamoChargesDecayRate", "Multiplier", m_settingsManager:GetValue("opticalCamoChargesDecayRateModifier"))
-            registerPlayerStatsModifier(player, "OpticalCamoChargesRegenRate", "Multiplier", m_settingsManager:GetValue("opticalCamoChargesRegenRateModifier"))
         end
 
         if (m_settingsManager:GetValue("opticalCamoRechargeImmediate")) then
+            registerPlayerStatsModifier(player, "OpticalCamoChargesRegenRate", "Multiplier", 100)
             registerPlayerStatsModifier(player, "OpticalCamoRechargeDuration", "Multiplier", 0.01)
         else
-            registerPlayerStatsModifier(player, "OpticalCamoRechargeDuration", "Multiplier", (1 / m_settingsManager:GetValue("opticalCamoChargesRegenRateModifier")))
+            registerPlayerStatsModifier(player, "OpticalCamoChargesRegenRate", "Multiplier", m_settingsManager:GetValue("opticalCamoChargesRegenRateModifier"))
         end
 
         this:DumpPlayerStats(player)
