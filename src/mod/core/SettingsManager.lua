@@ -83,7 +83,7 @@ function createSettingsMenu()
         localizationManager:GetTranslation("settings.opticalCamoChargesRegenRateModifier.label"),
         localizationManager:GetTranslation("settings.opticalCamoChargesRegenRateModifier.description"),
         .1,
-        10,
+        20,
         0.1,
         "%.1f",
         m_activeSettings.opticalCamoChargesRegenRateModifier,
