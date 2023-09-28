@@ -1,6 +1,9 @@
 Better Optical Camo
 -----
 
+### Version 2.1.1
+* Fix recharge modifier logic
+
 ### Version 2.1.0
 * Allow toggling to activate camo
 * Adjust options and modifiers to make more sense
