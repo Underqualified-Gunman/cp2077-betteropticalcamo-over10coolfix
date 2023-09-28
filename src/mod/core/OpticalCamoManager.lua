@@ -8,6 +8,19 @@ local m_localizationManager = require("./core/LocalizationManager")
 local m_redscriptExtension = require("./core/RedscriptExtension")
 local m_settingsManager = require("./core/SettingsManager")
 
+local k_opticalCamoItemToStatusEffectName = {
+    ["Items.AdvancedOpticalCamoCommon"]            = "BaseStatusEffect.OpticalCamoPlayerBuffCommon",
+    ["Items.AdvancedOpticalCamoUncommon"]          = "BaseStatusEffect.OpticalCamoPlayerBuffUncommon",
+    ["Items.AdvancedOpticalCamoUncommonPlus"]      = "BaseStatusEffect.OpticalCamoPlayerBuffUncommon",
+    ["Items.AdvancedOpticalCamoRare"]              = "BaseStatusEffect.OpticalCamoPlayerBuffRare",
+    ["Items.AdvancedOpticalCamoRarePlus"]          = "BaseStatusEffect.OpticalCamoPlayerBuffRare",
+    ["Items.AdvancedOpticalCamoEpic"]              = "BaseStatusEffect.OpticalCamoPlayerBuffEpic",
+    ["Items.AdvancedOpticalCamoEpicPlus"]          = "BaseStatusEffect.OpticalCamoPlayerBuffEpic",
+    ["Items.AdvancedOpticalCamoLegendary"]         = "BaseStatusEffect.OpticalCamoPlayerBuffLegendary",
+    ["Items.AdvancedOpticalCamoLegendaryPlus"]     = "BaseStatusEffect.OpticalCamoPlayerBuffLegendary",
+    ["Items.AdvancedOpticalCamoLegendaryPlusPlus"] = "BaseStatusEffect.OpticalCamoPlayerBuffLegendary"
+}
+
 local m_observers = {}
 local m_compatAddons = {}
 
@@ -76,8 +89,18 @@ function loadClassListFile(path)
     return {}
 end
 
+function hasPlayerItemEquipped(player, itemName)
+    local transactionSystem = Game.GetTransactionSystem()
+    local equipmentSystem = Game.GetScriptableSystemsContainer():Get("EquipmentSystem")
+    local equipmentPlayerData = equipmentSystem:GetPlayerData(player)
+
+    return equipmentPlayerData:GetActiveCyberware().id == ItemID.FromTDBID(itemName).id
+end
+
 OpticalCamoManager.ApplyTweaks =
     function(this)
+        TweakDB:SetFlat("BaseStatusEffect.OpticalCamoPlayerBuffCommon_inline1.value", -1)
+        TweakDB:SetFlat("BaseStatusEffect.OpticalCamoPlayerBuffUncommon_inline1.value", -1)
         TweakDB:SetFlat("BaseStatusEffect.OpticalCamoPlayerBuffRare_inline1.value", -1)
         TweakDB:SetFlat("BaseStatusEffect.OpticalCamoPlayerBuffEpic_inline1.value", -1)
         TweakDB:SetFlat("BaseStatusEffect.OpticalCamoPlayerBuffLegendary_inline1.value", -1)
@@ -105,12 +128,11 @@ OpticalCamoManager.Initialize =
             print_debug(LOGTAG, "Loading observer '"..observerClassName.."'")
 
             local observer = require("./observers/"..observerClassName)
+            m_observers[observerClassName] = observer
 
             if (observer["Initialize"] ~= nil) then
                 observer:Initialize()
             end
-
-            m_observers[observerClassName] = observer
         end
 
         -- initialize compatibility-addons
@@ -119,12 +141,11 @@ OpticalCamoManager.Initialize =
             print_debug(LOGTAG, "Loading compatibility addon '"..compatAddonClassName.."'")
 
             local compatAddon = require("./compat/"..compatAddonClassName)
+            m_compatAddons[compatAddonClassName] = compatAddon
 
             if (compatAddon["Initialize"] ~= nil) then
                 compatAddon:Initialize()
             end
-
-            m_compatAddons[compatAddonClassName] = compatAddon
         end
     end
 
@@ -134,9 +155,7 @@ OpticalCamoManager.Update =
             local player = Game.GetPlayer()
 
             if (player ~= nil) then
-                local statPoolsSystem = Game.GetStatPoolsSystem()
-                local opticalCamoCharges = statPoolsSystem:GetStatPoolValue(player:GetEntityID(), "OpticalCamoCharges")
-
+                local opticalCamoCharges = this:GetOpticalCamoCharges(player)
                 if ((opticalCamoCharges < 0.01) and (not m_settingsManager:GetValue("opticalCamoKeepActiveAfterDepletion"))) then
                     this:DeactivateOpticalCamo(player)
                 end
@@ -162,8 +181,8 @@ OpticalCamoManager.Shutdown =
 
         if (player ~= nil) then
             if (this:IsOpticalCamoActive(player)) then
-                this:SetPlayerVisible(this)
-                this:DeactivateOpticalCamo(this)
+                this:SetPlayerVisible(player)
+                this:DeactivateOpticalCamo(player)
             end
 
             unregisterPlayerStatsModifier(player)
@@ -194,24 +213,59 @@ OpticalCamoManager.GetLocalizationManager =
         return m_localizationManager
     end
 
+OpticalCamoManager.ActivateOpticalCamo =
+    function(this, player)
+        local statusEffectSystem = Game.GetStatusEffectSystem()
+        local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
+
+        if (statusEffectName ~= nil) then
+            -- Thanks to Taylor2000 for pointing out that just applying
+            -- the effect is actually enough to activate the cloak
+            statusEffectSystem:ApplyStatusEffect(player:GetEntityID(), statusEffectName)
+        end
+    end
+
 OpticalCamoManager.DeactivateOpticalCamo =
     function(this, player)
-        local playerID = player:GetEntityID()
         local statusEffectSystem = Game.GetStatusEffectSystem()
+        local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
 
-        statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffRare")
-        statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffEpic")
-        statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffLegendary")
+        if (statusEffectName ~= nil) then
+            statusEffectSystem:RemoveStatusEffect(player:GetEntityID(), statusEffectName)
+        end
     end
 
 OpticalCamoManager.IsOpticalCamoActive =
     function(this, player)
-        local playerID = player:GetEntityID()
         local statusEffectSystem = Game.GetStatusEffectSystem()
+        local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
 
-        return statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffRare") or
-            statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffEpic") or
-            statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffLegendary")
+        if (statusEffectName ~= nil) then
+            return statusEffectSystem:HasStatusEffect(player:GetEntityID(), statusEffectName)
+        end
+
+        return false
+    end
+
+OpticalCamoManager.GetOpticalCamoStatusEffectName =
+    function(this, player)
+        local transactionSystem = Game.GetTransactionSystem()
+
+        for itemName, effectName in pairs(k_opticalCamoItemToStatusEffectName) do
+            if (hasPlayerItemEquipped(player, itemName)) then
+                print_trace(LOGTAG, "Item '"..itemName.."' equipped, using status-effect '"..effectName.."'")
+                return effectName
+            end
+        end
+
+        print_trace(LOGTAG, "No optical camo-item equipped")
+        return nil
+    end
+
+OpticalCamoManager.GetOpticalCamoCharges =
+    function(this, player)
+        local statPoolsSystem = Game.GetStatPoolsSystem()
+        return statPoolsSystem:GetStatPoolValue(player:GetEntityID(), "OpticalCamoCharges")
     end
 
 OpticalCamoManager.ApplySettings =

@@ -27,8 +27,16 @@ function observeOnAction(this, action)
     local actionType = ListenerAction.GetType(action).value
 
     if (opticalCamoManager:GetSettingsManager():GetValue("enableToggling")) then
-        if (actionName == "UseCombatGadget" and actionType == "BUTTON_PRESSED" and opticalCamoManager:IsOpticalCamoActive(this)) then
-            opticalCamoManager:DeactivateOpticalCamo(this)
+        if (actionName == "UseCombatGadget" and actionType == "BUTTON_PRESSED") then
+            local opticalCamoCharges = opticalCamoManager:GetOpticalCamoCharges(this)
+
+            if (opticalCamoManager:IsOpticalCamoActive(this)) then
+                print("DeactivateOpticalCamo")
+                opticalCamoManager:DeactivateOpticalCamo(this)
+            elseif (opticalCamoCharges > 0) then
+                print("ActivateOpticalCamo")
+                opticalCamoManager:ActivateOpticalCamo(this)
+            end
         end
     end
 

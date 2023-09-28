@@ -11,19 +11,19 @@ function GetOpticalCamoManager()
     return OpticalCamoManager
 end
 
+if (OpticalCamoManager ~= nil) then
+    print("ERROR: OpticalCamoManager ~= nil")
+end
+
 registerForEvent("onTweak", function()
     print_debug("onTweak", "entering")
-    if (OpticalCamoManager ~= nil) then
-        OpticalCamoManager:ApplyTweaks()
-    end
+    OpticalCamoManager:ApplyTweaks()
     print_debug("onTweak", "exiting")
 end)
 
 registerForEvent("onInit", function()
     print_debug("onInit", "entering")
-    if (OpticalCamoManager ~= nil) then
-        OpticalCamoManager:Initialize()
-    end
+    OpticalCamoManager:Initialize()
     print_debug("onInit", "exiting")
 end)
 
@@ -37,9 +37,7 @@ end)
 
 registerForEvent("onShutdown", function()
     print_debug("onShutdown", "entering")
-    if (OpticalCamoManager ~= nil) then
-        OpticalCamoManager:Shutdown()
-    end
+    OpticalCamoManager:Shutdown()
     print_debug("onShutdown", "exiting")
 end)
 
