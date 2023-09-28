@@ -92,9 +92,13 @@ end
 function hasPlayerItemEquipped(player, itemName)
     local transactionSystem = Game.GetTransactionSystem()
     local equipmentSystem = Game.GetScriptableSystemsContainer():Get("EquipmentSystem")
-    local equipmentPlayerData = equipmentSystem:GetPlayerData(player)
 
-    return equipmentPlayerData:GetActiveCyberware().id == ItemID.FromTDBID(itemName).id
+    local equipmentPlayerData = equipmentSystem:GetPlayerData(player)
+    if (equipmentPlayerData == nil) then
+        return false
+    end
+
+    return (equipmentPlayerData:GetActiveCyberware().id == ItemID.FromTDBID(itemName).id)
 end
 
 OpticalCamoManager.ApplyTweaks =
@@ -128,10 +132,14 @@ OpticalCamoManager.Initialize =
             print_debug(LOGTAG, "Loading observer '"..observerClassName.."'")
 
             local observer = require("./observers/"..observerClassName)
-            m_observers[observerClassName] = observer
+            if (observer ~= nil) then
+                m_observers[observerClassName] = observer
 
-            if (observer["Initialize"] ~= nil) then
-                observer:Initialize()
+                if (observer["Initialize"] ~= nil) then
+                    observer:Initialize()
+                end
+            else
+                print_error(LOGTAG, "Failed to load observer '"..observerClassName.."'")
             end
         end
 
@@ -141,12 +149,18 @@ OpticalCamoManager.Initialize =
             print_debug(LOGTAG, "Loading compatibility addon '"..compatAddonClassName.."'")
 
             local compatAddon = require("./compat/"..compatAddonClassName)
-            m_compatAddons[compatAddonClassName] = compatAddon
-
-            if (compatAddon["Initialize"] ~= nil) then
-                compatAddon:Initialize()
+            if (compatAddon ~= nil) then
+                m_compatAddons[compatAddonClassName] = compatAddon
+    
+                if (compatAddon["Initialize"] ~= nil) then
+                    compatAddon:Initialize()
+                end
+            else
+                print_error(LOGTAG, "Failed to load compatibility addon '"..observerClassName.."'")
             end
         end
+
+        print_info(LOGTAG, "BetterOpticalCamo initialized!")
     end
 
 OpticalCamoManager.Update =

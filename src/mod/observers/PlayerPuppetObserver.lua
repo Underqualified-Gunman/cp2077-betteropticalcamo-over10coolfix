@@ -31,10 +31,8 @@ function observeOnAction(this, action)
             local opticalCamoCharges = opticalCamoManager:GetOpticalCamoCharges(this)
 
             if (opticalCamoManager:IsOpticalCamoActive(this)) then
-                print("DeactivateOpticalCamo")
                 opticalCamoManager:DeactivateOpticalCamo(this)
             elseif (opticalCamoCharges > 0) then
-                print("ActivateOpticalCamo")
                 opticalCamoManager:ActivateOpticalCamo(this)
             end
         end

@@ -3,7 +3,6 @@
 -- MIT License (See LICENSE.md)
 k_trace = false
 k_debug = false
-k_info = true
 
 local OpticalCamoManager = require("./core/OpticalCamoManager")
 
@@ -67,9 +66,11 @@ function print_debug(tag, text)
 end
 
 function print_info(tag, text)
-    if (k_info) then
-        print("[BetterOpticalCamo]", "INFO", tag..":", text)
-    end
+    print("[BetterOpticalCamo]", "INFO", tag..":", text)
+end
+
+function print_error(tag, text)
+    print("[BetterOpticalCamo]", "ERROR", tag..":", text)
 end
 
 function table_contains_value(table, needle)
