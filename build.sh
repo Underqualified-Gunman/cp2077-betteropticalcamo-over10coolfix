@@ -11,25 +11,24 @@ rm -vf BetterOpticalCamo.zip
 
 # create directory structure
 mkdir -pv "build/"
-mkdir -pv "build/Core Mod/bin/x64/plugins/cyber_engine_tweaks/mods/BetterOpticalCamo/"
-mkdir -pv "build/Compatibility Addons/"
-mkdir -pv "build/Compatibility Addons/Custom Quickslots/r6/scripts/BetterOpticalCamo/compat/"
+mkdir -pv "build/bin/x64/plugins/cyber_engine_tweaks/mods/BetterOpticalCamo/"
+mkdir -pv "build/r6/scripts/BetterOpticalCamo/"
 
 # copy files
-cp -vf {CHANGELOG,LICENSE,README}.md "build/"
-cp -rvf core/mod/* "build/Core Mod/bin/x64/plugins/cyber_engine_tweaks/mods/BetterOpticalCamo/"
-cp -rvf compat/custom_quickslots/redscript/* "build/Compatibility Addons/Custom Quickslots/r6/scripts/BetterOpticalCamo/compat"
+cp -v {CHANGELOG,LICENSE,README}.md  "build/bin/x64/plugins/cyber_engine_tweaks/mods/BetterOpticalCamo/"
+cp -rv src/mod/*                     "build/bin/x64/plugins/cyber_engine_tweaks/mods/BetterOpticalCamo/"
+cp -rv src/redscript/*               "build/r6/scripts/BetterOpticalCamo/"
 
 # remove runtime files
 rm -vf \
-    "build/Core Mod/bin/x64/plugins/cyber_engine_tweaks/mods/BetterOpticalCamo/BetterOpticalCamo.log" \
-    "build/Core Mod/bin/x64/plugins/cyber_engine_tweaks/mods/BetterOpticalCamo/db.sqlite3" \
-    "build/Core Mod/bin/x64/plugins/cyber_engine_tweaks/mods/BetterOpticalCamo/settings.json"
+    "build/bin/x64/plugins/cyber_engine_tweaks/mods/BetterOpticalCamo/BetterOpticalCamo.log" \
+    "build/bin/x64/plugins/cyber_engine_tweaks/mods/BetterOpticalCamo/db.sqlite3" \
+    "build/bin/x64/plugins/cyber_engine_tweaks/mods/BetterOpticalCamo/settings.json"
 
-# create final artifact
+# create final mod-artifact
 cd build/
 zip -v -r9 ../BetterOpticalCamo.zip .
-cd ..
+cd -
 
 # cleanup
 rm -vfr build/
