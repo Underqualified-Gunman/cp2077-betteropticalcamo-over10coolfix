@@ -19,6 +19,11 @@ RedscriptExtension.Initialize =
                     return GetOpticalCamoManager():GetSettingsManager():GetValue(name)
                 end)
 
+            Override(k_scriptableSystem, "ActivateOpticalCamo",
+                function(this, player)
+                    return GetOpticalCamoManager():ActivateOpticalCamo(player)
+                end)
+
             Override(k_scriptableSystem, "DeactivateOpticalCamo",
                 function(this, player)
                     return GetOpticalCamoManager():DeactivateOpticalCamo(player)
@@ -27,6 +32,11 @@ RedscriptExtension.Initialize =
             Override(k_scriptableSystem, "IsOpticalCamoActive",
                 function(this, player)
                     return GetOpticalCamoManager():IsOpticalCamoActive(player)
+                end)
+
+            Override(k_scriptableSystem, "GetOpticalCamoCharges",
+                function(this, player)
+                    return GetOpticalCamoManager():GetOpticalCamoCharges(player)
                 end)
         else
             print_info(LOGTAG, "extension not found")

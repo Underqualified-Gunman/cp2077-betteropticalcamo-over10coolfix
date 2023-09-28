@@ -6,18 +6,26 @@ module BetterOpticalCamo
 public class BetterOpticalCamoSystem extends ScriptableSystem {
 
     public final func GetSettings(name: String) -> Variant {
-        /* Implemented by CET-mod */
+        /* Overriden by RedscriptExtension */
         return null;
     }
 
-    public final func DeactivateOpticalCamo(player: wref<PlayerPuppet>) -> Bool {
-        /* Implemented by CET-mod */
-        return false;
+    public final func ActivateOpticalCamo(player: wref<PlayerPuppet>) -> Void {
+        /* Overriden by RedscriptExtension */
+    }
+
+    public final func DeactivateOpticalCamo(player: wref<PlayerPuppet>) -> Void {
+        /* Overriden by RedscriptExtension */
     }
 
     public final func IsOpticalCamoActive(player: wref<PlayerPuppet>) -> Bool {
-        /* Implemented by CET-mod */
+        /* Overriden by RedscriptExtension */
         return false;
+    }
+
+    public final func GetOpticalCamoCharges(player: wref<PlayerPuppet>) -> Float {
+        /* Overriden by RedscriptExtension */
+        return -1.0;
     }
 
 }
