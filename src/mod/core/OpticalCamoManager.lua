@@ -165,14 +165,12 @@ OpticalCamoManager.Initialize =
 
 OpticalCamoManager.Update =
     function(this)
-        if (not m_settingsManager:GetValue("opticalCamoChargesUseMinimalDecayRate")) then
-            local player = Game.GetPlayer()
+        local player = Game.GetPlayer()
 
-            if (player ~= nil) then
-                local opticalCamoCharges = this:GetOpticalCamoCharges(player)
-                if ((opticalCamoCharges < 0.01) and (not m_settingsManager:GetValue("opticalCamoKeepActiveAfterDepletion"))) then
-                    this:DeactivateOpticalCamo(player)
-                end
+        if (player ~= nil) then
+            local opticalCamoCharges = this:GetOpticalCamoCharges(player)
+            if ((opticalCamoCharges < 0.01) and (not m_settingsManager:GetValue("opticalCamoKeepActiveAfterDepletion"))) then
+                this:DeactivateOpticalCamo(player)
             end
         end
 
@@ -286,15 +284,10 @@ OpticalCamoManager.ApplySettings =
     function(this, player)
         this:DumpPlayerStats(player)
 
-        if (m_settingsManager:GetValue("opticalCamoChargesUseMinimalDecayRate")) then
-            registerPlayerStatsModifier(player, "OpticalCamoChargesDecayRate", "Multiplier", 0.025)
-        else
-            registerPlayerStatsModifier(player, "OpticalCamoChargesDecayRate", "Multiplier", m_settingsManager:GetValue("opticalCamoChargesDecayRateModifier"))
-        end
+        registerPlayerStatsModifier(player, "OpticalCamoChargesDecayRate", "Multiplier", m_settingsManager:GetValue("opticalCamoChargesDecayRateModifier"))
 
         if (m_settingsManager:GetValue("opticalCamoRechargeImmediate")) then
             registerPlayerStatsModifier(player, "OpticalCamoChargesRegenRate", "Multiplier", 100)
-            registerPlayerStatsModifier(player, "OpticalCamoRechargeDuration", "Multiplier", 0.01)
         else
             registerPlayerStatsModifier(player, "OpticalCamoChargesRegenRate", "Multiplier", m_settingsManager:GetValue("opticalCamoChargesRegenRateModifier"))
         end

@@ -7,7 +7,6 @@ local k_defaultSettings = {
     enableToggling = true,
     opticalCamoChargesDecayRateModifier = 1,
     opticalCamoChargesRegenRateModifier = 1,
-    opticalCamoChargesUseMinimalDecayRate = false,
     opticalCamoKeepActiveAfterDepletion = false,
     opticalCamoRechargeImmediate = false,
     combatCloak = false,
@@ -91,17 +90,6 @@ function createSettingsMenu()
         k_defaultSettings.opticalCamoChargesRegenRateModifier,
         function(state)
             m_pendingSettings.opticalCamoChargesRegenRateModifier = state
-        end)
-
-    -- nativeSettings.addSwitch(path, label, desc, currentValue, defaultValue, callback, optionalIndex)
-    nativeSettings.addSwitch(
-        "/BetterOpticalCamo/Core",
-        localizationManager:GetTranslation("settings.opticalCamoChargesUseMinimalDecayRate.label"),
-        localizationManager:GetTranslation("settings.opticalCamoChargesUseMinimalDecayRate.description"),
-        m_activeSettings.opticalCamoChargesUseMinimalDecayRate,
-        k_defaultSettings.opticalCamoChargesUseMinimalDecayRate,
-        function(state)
-            m_pendingSettings.opticalCamoChargesUseMinimalDecayRate = state
         end)
 
     -- nativeSettings.addSwitch(path, label, desc, currentValue, defaultValue, callback, optionalIndex)

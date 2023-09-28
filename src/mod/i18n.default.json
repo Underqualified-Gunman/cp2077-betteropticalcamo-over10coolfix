@@ -7,8 +7,6 @@
     "settings.opticalCamoChargesDecayRateModifier.description": "Modifier for the optical camo energy depletion value (Lower value = less depletion, larger value = more depletion)",
     "settings.opticalCamoChargesRegenRateModifier.label": "Energy Regeneration Modifier",
     "settings.opticalCamoChargesRegenRateModifier.description": "Modifier for the optical camo energy regeneration value (Lower value = less regeneration, larger value = more regeneration)",
-    "settings.opticalCamoChargesUseMinimalDecayRate.label": "Minimal Energy Depletion Modifier",
-    "settings.opticalCamoChargesUseMinimalDecayRate.description": "Sets the energy depletion modifier to the minimal properly usable value",
     "settings.opticalCamoKeepActiveAfterDepletion.label": "Infinite Duration",
     "settings.opticalCamoKeepActiveAfterDepletion.description": "Keep optical camo active even when the energy has been depleted (May lead to unforseen issues with specific parts of gameplay)",
     "settings.opticalCamoRechargeImmediate.label": "Immediate Recharge",
