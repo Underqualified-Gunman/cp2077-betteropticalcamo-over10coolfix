@@ -1,6 +1,6 @@
 Better Optical Camo
 =====
-Version 2.1.0
+Version 2.1.2
 
 [Better Optical Camo at Nexus Mods](https://www.nexusmods.com/cyberpunk2077/mods/4159)
 

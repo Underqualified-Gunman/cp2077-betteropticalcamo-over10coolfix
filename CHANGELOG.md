@@ -1,6 +1,9 @@
 Better Optical Camo
 -----
 
+### Version 2.1.2
+* revert back to old logic for checking and deactivating optical camo
+
 ### Version 2.1.1
 * Fix recharge modifier logic
 
