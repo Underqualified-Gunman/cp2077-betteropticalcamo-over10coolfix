@@ -1,6 +1,9 @@
 Better Optical Camo
 -----
 
+### Version 2.1.3
+* fix logic to determine equipped optical camo cyberware
+
 ### Version 2.1.2
 * revert back to old logic for checking and deactivating optical camo
 
