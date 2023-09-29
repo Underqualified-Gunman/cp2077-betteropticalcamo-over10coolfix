@@ -10,6 +10,10 @@ function observeOnInitialize(this)
     m_rootWidget = this:GetRootWidget()
 end
 
+function observeOnUninitialize(this)
+    m_rootWidget = nil
+end
+
 function observeResolveState(this)
     m_rootWidget = this:GetRootWidget()
 
@@ -34,6 +38,7 @@ end
 ChargedHotkeyItemGadgetControllerObserver.Initialize =
     function()
         ObserveAfter("ChargedHotkeyItemGadgetController", "OnInitialize", observeOnInitialize)
+        ObserveBefore("ChargedHotkeyItemGadgetController", "OnUninitialize", observeOnUninitialize)
         ObserveAfter("ChargedHotkeyItemGadgetController", "ResolveState", observeResolveState)
     end
 
