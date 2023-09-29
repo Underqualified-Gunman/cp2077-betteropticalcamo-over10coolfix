@@ -16,7 +16,7 @@ function observeResolveState(this)
     local opticalCamoManager = GetOpticalCamoManager()
     local player = Game.GetPlayer()
 
-    if (opticalCamoManager:GetSettingsManager():GetValue("enableToggling")) then
+    if ((player ~= nil) and (opticalCamoManager:GetSettingsManager():GetValue("enableToggling"))) then
         if (this:IsCyberwareActive()) then
             if (opticalCamoManager:IsOpticalCamoActive(player)) then
                 m_rootWidget:SetState("ActiveInterruptible")
@@ -43,7 +43,7 @@ ChargedHotkeyItemGadgetControllerObserver.Update =
             local opticalCamoManager = GetOpticalCamoManager()
             local player = Game.GetPlayer()
 
-            if (opticalCamoManager:GetSettingsManager():GetValue("enableToggling")) then
+            if ((player ~= nil) and (opticalCamoManager:GetSettingsManager():GetValue("enableToggling"))) then
                 local opticalCamoCharges = opticalCamoManager:GetOpticalCamoCharges(player)
 
                 if (opticalCamoCharges < 0.01) then
