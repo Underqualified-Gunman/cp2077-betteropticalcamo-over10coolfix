@@ -8,7 +8,7 @@ local m_localizationManager = require("./core/LocalizationManager")
 local m_redscriptExtension = require("./core/RedscriptExtension")
 local m_settingsManager = require("./core/SettingsManager")
 
-local k_opticalCamoItemToStatusEffectName = {
+--[[ local k_opticalCamoItemToStatusEffectName = {
     ["Items.AdvancedOpticalCamoCommon"]            = "BaseStatusEffect.OpticalCamoPlayerBuffCommon",
     ["Items.AdvancedOpticalCamoUncommon"]          = "BaseStatusEffect.OpticalCamoPlayerBuffUncommon",
     ["Items.AdvancedOpticalCamoUncommonPlus"]      = "BaseStatusEffect.OpticalCamoPlayerBuffUncommon",
@@ -19,7 +19,7 @@ local k_opticalCamoItemToStatusEffectName = {
     ["Items.AdvancedOpticalCamoLegendary"]         = "BaseStatusEffect.OpticalCamoPlayerBuffLegendary",
     ["Items.AdvancedOpticalCamoLegendaryPlus"]     = "BaseStatusEffect.OpticalCamoPlayerBuffLegendary",
     ["Items.AdvancedOpticalCamoLegendaryPlusPlus"] = "BaseStatusEffect.OpticalCamoPlayerBuffLegendary"
-}
+} ]]--
 
 local m_observers = {}
 local m_compatAddons = {}
@@ -239,24 +239,40 @@ OpticalCamoManager.ActivateOpticalCamo =
 
 OpticalCamoManager.DeactivateOpticalCamo =
     function(this, player)
+        local playerID = player:GetEntityID()
         local statusEffectSystem = Game.GetStatusEffectSystem()
-        local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
+
+        --[[ local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
 
         if (statusEffectName ~= nil) then
-            statusEffectSystem:RemoveStatusEffect(player:GetEntityID(), statusEffectName)
-        end
+            statusEffectSystem:RemoveStatusEffect(playerID, statusEffectName)
+        end ]]--
+
+        statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffCommon")
+        statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffUncommon")
+        statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffRare")
+        statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffEpic")
+        statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffLegendary")
     end
 
 OpticalCamoManager.IsOpticalCamoActive =
     function(this, player)
+        local playerID = player:GetEntityID()
         local statusEffectSystem = Game.GetStatusEffectSystem()
-        local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
+
+        --[[ local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
 
         if (statusEffectName ~= nil) then
-            return statusEffectSystem:HasStatusEffect(player:GetEntityID(), statusEffectName)
+            return statusEffectSystem:HasStatusEffect(playerID, statusEffectName)
         end
 
-        return false
+        return false ]]--
+
+        return statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffCommon") or
+            statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffUncommon") or
+            statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffRare") or
+            statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffEpic") or
+            statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffLegendary")
     end
 
 OpticalCamoManager.GetOpticalCamoStatusEffectName =
