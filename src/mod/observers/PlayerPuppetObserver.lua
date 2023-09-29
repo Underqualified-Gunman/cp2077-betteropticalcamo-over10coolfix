@@ -72,7 +72,7 @@ function observeOnStatusEffectApplied(this, event)
     print_trace(LOGTAG, "#combatCloak="..tostring(opticalCamoManager:GetSettingsManager():GetValue("combatCloak")))
 
     if (shouldRunInvisibilityLogic) then
-        print_info(LOGTAG, "activating combat-cloak")
+        print_debug(LOGTAG, "activating combat-cloak")
 
         opticalCamoManager:SetPlayerInvisible(this)
         opticalCamoManager:MakePlayerExitCombat(this)
@@ -86,7 +86,7 @@ function observeOnStatusEffectRemoved(this, event)
     print_trace(LOGTAG, "entering Observer<PlayerPupper::OnStatusEffectRemoved>")
 
     if (doesEventContainActiveCamoGameplayTag(event)) then
-        print_info(LOGTAG, "deactivating combat-cloak")
+        print_debug(LOGTAG, "deactivating combat-cloak")
 
         local opticalCamoManager = GetOpticalCamoManager()
 
