@@ -8,7 +8,7 @@ local m_localizationManager = require("./core/LocalizationManager")
 local m_redscriptExtension = require("./core/RedscriptExtension")
 local m_settingsManager = require("./core/SettingsManager")
 
---[[ local k_opticalCamoItemToStatusEffectName = {
+local k_opticalCamoItemToStatusEffectName = {
     ["Items.AdvancedOpticalCamoCommon"]            = "BaseStatusEffect.OpticalCamoPlayerBuffCommon",
     ["Items.AdvancedOpticalCamoUncommon"]          = "BaseStatusEffect.OpticalCamoPlayerBuffUncommon",
     ["Items.AdvancedOpticalCamoUncommonPlus"]      = "BaseStatusEffect.OpticalCamoPlayerBuffUncommon",
@@ -19,13 +19,15 @@ local m_settingsManager = require("./core/SettingsManager")
     ["Items.AdvancedOpticalCamoLegendary"]         = "BaseStatusEffect.OpticalCamoPlayerBuffLegendary",
     ["Items.AdvancedOpticalCamoLegendaryPlus"]     = "BaseStatusEffect.OpticalCamoPlayerBuffLegendary",
     ["Items.AdvancedOpticalCamoLegendaryPlusPlus"] = "BaseStatusEffect.OpticalCamoPlayerBuffLegendary"
-} ]]--
+}
 
 local m_observers = {}
 local m_compatAddons = {}
 
 local m_playerStatsModifiers = {}
 local m_playerExitCombatDelayIDs = {}
+
+local m_detectedOpticalCamoItem = ""
 
 function registerPlayerStatsModifier(player, statType, modifierType, value)
     local playerID = player:GetEntityID()
@@ -227,13 +229,14 @@ OpticalCamoManager.GetLocalizationManager =
 
 OpticalCamoManager.ActivateOpticalCamo =
     function(this, player)
+        local playerID = player:GetEntityID()
         local statusEffectSystem = Game.GetStatusEffectSystem()
         local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
 
         if (statusEffectName ~= nil) then
             -- Thanks to Taylor2000 for pointing out that just applying
             -- the effect is actually enough to activate the cloak
-            statusEffectSystem:ApplyStatusEffect(player:GetEntityID(), statusEffectName)
+            statusEffectSystem:ApplyStatusEffect(playerID, statusEffectName)
         end
     end
 
@@ -241,49 +244,54 @@ OpticalCamoManager.DeactivateOpticalCamo =
     function(this, player)
         local playerID = player:GetEntityID()
         local statusEffectSystem = Game.GetStatusEffectSystem()
-
-        --[[ local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
+        local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
 
         if (statusEffectName ~= nil) then
             statusEffectSystem:RemoveStatusEffect(playerID, statusEffectName)
-        end ]]--
-
-        statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffCommon")
-        statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffUncommon")
-        statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffRare")
-        statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffEpic")
-        statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffLegendary")
+        else
+            statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffCommon")
+            statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffUncommon")
+            statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffRare")
+            statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffEpic")
+            statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffLegendary")
+        end
     end
 
 OpticalCamoManager.IsOpticalCamoActive =
     function(this, player)
         local playerID = player:GetEntityID()
         local statusEffectSystem = Game.GetStatusEffectSystem()
-
-        --[[ local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
+        local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
 
         if (statusEffectName ~= nil) then
             return statusEffectSystem:HasStatusEffect(playerID, statusEffectName)
+        else
+            return statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffCommon") or
+                statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffUncommon") or
+                statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffRare") or
+                statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffEpic") or
+                statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffLegendary")
         end
-
-        return false ]]--
-
-        return statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffCommon") or
-            statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffUncommon") or
-            statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffRare") or
-            statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffEpic") or
-            statusEffectSystem:HasStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffLegendary")
     end
 
 OpticalCamoManager.GetOpticalCamoStatusEffectName =
     function(this, player)
-        local transactionSystem = Game.GetTransactionSystem()
-
         for itemName, effectName in pairs(k_opticalCamoItemToStatusEffectName) do
             if (hasPlayerItemEquipped(player, itemName)) then
                 print_trace(LOGTAG, "Item '"..itemName.."' equipped, using status-effect '"..effectName.."'")
+
+                if (m_detectedOpticalCamoItem ~= itemName) then
+                    print_info(LOGTAG, "Detected optical camo cyberware item '"..itemName.."' (using status-effect '"..effectName.."')")
+                    m_detectedOpticalCamoItem = itemName
+                end
+
                 return effectName
             end
+        end
+
+        if (m_detectedOpticalCamoItem ~= nil) then
+            print_info(LOGTAG, "No optical camo cyberware item detected")
+            m_detectedOpticalCamoItem = nil
         end
 
         print_trace(LOGTAG, "No optical camo-item equipped")
