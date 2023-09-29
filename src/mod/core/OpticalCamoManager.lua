@@ -100,7 +100,31 @@ function hasPlayerItemEquipped(player, itemName)
         return false
     end
 
-    return (equipmentPlayerData:GetActiveCyberware().id == ItemID.FromTDBID(itemName).id)
+    local itemTDBID = ItemID.FromTDBID(itemName).id
+
+    -- primary method: check active gadget, this seems to work on all saves I tried so far
+    -- Thanks to Wilieragr for providing me a savegame to solve this problem
+    if (equipmentPlayerData:GetActiveGadget().id == itemTDBID) then
+        return true
+    end
+
+    -- secondary method: directly query active cyberware, only worked on my savegame
+    if (equipmentPlayerData:GetActiveCyberware().id == itemTDBID) then
+        -- return true
+    end
+
+    -- backup method: just iterate through equipped cyberware
+    --
+    -- @remark keep this disabled, as even if the Optical Camo is basically equipped, the player may have another
+    --         cyberware equipped on shortcut, we don't want to activate camo if the player doesn't expect it to;
+    --         but just in case, I want to keep the basic logic here
+    --[[ for i = 1, 3 do
+        if (equipmentPlayerData:GetItemInEquipSlot("IntegumentarySystemCW", i).id == itemTDBID) then
+            return true
+        end
+    end ]]
+
+    return false
 end
 
 OpticalCamoManager.ApplyTweaks =
