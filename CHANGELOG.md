@@ -1,6 +1,10 @@
 Better Optical Camo
 -----
 
+### Version 2.1.4
+* only change gadget state if optical camois equipped
+* fix "Custom Quickslots" compatibility-addon
+
 ### Version 2.1.3
 * fix logic to determine equipped optical camo cyberware
 
