@@ -298,6 +298,11 @@ OpticalCamoManager.IsOpticalCamoActive =
         end
     end
 
+OpticalCamoManager.HasOpticalCamoEquipped =
+    function(this, player)
+        return (this:GetOpticalCamoStatusEffectName(player) ~= nil)
+    end
+
 OpticalCamoManager.GetOpticalCamoStatusEffectName =
     function(this, player)
         for itemName, effectName in pairs(k_opticalCamoItemToStatusEffectName) do
