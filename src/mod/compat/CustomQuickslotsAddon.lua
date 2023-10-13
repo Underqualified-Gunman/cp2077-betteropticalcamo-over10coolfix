@@ -16,9 +16,10 @@ CustomQuickslotsAddon.Initialize =
                 function(this)
                     print_trace(LOGTAG, "entering <HotkeyItemController::UseEquippedItem()>")
 
-                    if (m_activeSettings.enableToggling) then
+                    local opticalCamoManager = GetOpticalCamoManager()
+
+                    if (opticalCamoManager:GetSettingsManager():GetValue("enableToggling")) then
                         local player = Game.GetPlayer()
-                        local opticalCamoManager = GetOpticalCamoManager()
 
                         if (this:IsOpticalCamoCyberwareAbility() and opticalCamoManager:IsOpticalCamoActive(player)) then
                             opticalCamoManager:DeactivateOpticalCamo(player)
