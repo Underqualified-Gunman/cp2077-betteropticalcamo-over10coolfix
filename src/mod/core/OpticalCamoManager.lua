@@ -188,11 +188,12 @@ OpticalCamoManager.Shutdown =
         local player = Game.GetPlayer()
 
         if ((player ~= nil) and (this:IsOpticalCamoActive(player))) then
-            this:SetPlayerVisible(player)
             this:DeactivateOpticalCamo(player)
+            this:SetPlayerVisible(player)
         end
 
-        clearDelayedPlayerExitCombatEvents()
+        this:ResetOpticalCamoModifiers(player)
+        this:ClearDelayedPlayerExitCombatEvents()
 
         for _, observer in pairs(m_observers) do
             if (observer["Shutdown"] ~= nil) then
