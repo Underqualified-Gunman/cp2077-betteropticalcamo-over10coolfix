@@ -22,12 +22,13 @@ function observeOnAction(this, action)
 
     if (opticalCamoManager:GetSettingsManager():GetValue("enableToggling")) then
         if (actionName == "UseCombatGadget" and actionType == "BUTTON_PRESSED") then
-            local opticalCamoCharges = opticalCamoManager:GetOpticalCamoCharges(this)
-
             if (opticalCamoManager:IsOpticalCamoActive(this)) then
                 opticalCamoManager:DeactivateOpticalCamo(this)
-            elseif (opticalCamoCharges > 0) then
-                opticalCamoManager:ActivateOpticalCamo(this)
+            else
+                local opticalCamoCharges = opticalCamoManager:GetOpticalCamoCharges(this)
+                if (opticalCamoCharges > 0) then
+                    opticalCamoManager:ActivateOpticalCamo(this)
+                end
             end
         end
     end
