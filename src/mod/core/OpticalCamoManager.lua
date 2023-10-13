@@ -24,38 +24,9 @@ local k_opticalCamoItemToStatusEffectName = {
 local m_observers = {}
 local m_compatAddons = {}
 
-local m_playerStatsModifiers = {}
 local m_playerExitCombatDelayIDs = {}
 
 local m_detectedOpticalCamoItem = ""
-
-function registerPlayerStatsModifier(player, statType, modifierType, value)
-    local playerID = player:GetEntityID()
-    local modifier = Game.CreateStatModifier(statType, modifierType, value)
-
-    if (m_playerStatsModifiers[statType] ~= nil) then
-        print_debug(LOGTAG, "removing modifier '"..statType.."'")
-        Game.GetStatsSystem():RemoveModifier(playerID, m_playerStatsModifiers[statType])
-    end
-
-    if (k_debug) then
-        print("[BetterOpticalCamo]", "DEBUG", LOGTAG, "adding modifier '"..statType.."': statType=<", statType, ">, modifierType=<", modifierType, ">, value=<", value, ">")
-    end
-
-    Game.GetStatsSystem():AddModifier(playerID, modifier)
-    m_playerStatsModifiers[statType] = modifier
-end
-
-function unregisterPlayerStatsModifier(player)
-    local playerID = player:GetEntityID()
-
-    for name, modifier in pairs(m_playerStatsModifiers) do
-        print_debug(LOGTAG, "removing modifier '"..name.."'")
-
-        Game.GetStatsSystem():RemoveModifier(playerID, modifier)
-        m_playerStatsModifiers[name] = nil
-    end
-end
 
 function dumpPlayerStat(player, statType)
     local playerID = player:GetEntityID()
@@ -129,6 +100,7 @@ end
 
 OpticalCamoManager.ApplyTweaks =
     function(this)
+        -- Set max duration to infinite
         TweakDB:SetFlat("BaseStatusEffect.OpticalCamoPlayerBuffCommon_inline1.value", -1)
         TweakDB:SetFlat("BaseStatusEffect.OpticalCamoPlayerBuffUncommon_inline1.value", -1)
         TweakDB:SetFlat("BaseStatusEffect.OpticalCamoPlayerBuffRare_inline1.value", -1)
@@ -145,9 +117,7 @@ OpticalCamoManager.Initialize =
         m_settingsManager:Initialize()
 
         if (player ~= nil) then
-            this:DumpPlayerStats(player)
-            this:ApplySettings(player)
-            this:DumpPlayerStats(player)
+            this:AttachPlayer(player)
         end
 
         m_settingsManager:PostInitialize()
@@ -217,13 +187,9 @@ OpticalCamoManager.Shutdown =
     function(this)
         local player = Game.GetPlayer()
 
-        if (player ~= nil) then
-            if (this:IsOpticalCamoActive(player)) then
-                this:SetPlayerVisible(player)
-                this:DeactivateOpticalCamo(player)
-            end
-
-            unregisterPlayerStatsModifier(player)
+        if ((player ~= nil) and (this:IsOpticalCamoActive(player))) then
+            this:SetPlayerVisible(player)
+            this:DeactivateOpticalCamo(player)
         end
 
         clearDelayedPlayerExitCombatEvents()
@@ -253,10 +219,12 @@ OpticalCamoManager.GetLocalizationManager =
 
 OpticalCamoManager.ActivateOpticalCamo =
     function(this, player)
-        local playerID = player:GetEntityID()
         local statusEffectSystem = Game.GetStatusEffectSystem()
-        local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
+        local playerID = player:GetEntityID()
 
+        this:ApplySettings(player)
+
+        local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
         if (statusEffectName ~= nil) then
             -- Thanks to Taylor2000 for pointing out that just applying
             -- the effect is actually enough to activate the cloak
@@ -266,10 +234,12 @@ OpticalCamoManager.ActivateOpticalCamo =
 
 OpticalCamoManager.DeactivateOpticalCamo =
     function(this, player)
-        local playerID = player:GetEntityID()
         local statusEffectSystem = Game.GetStatusEffectSystem()
-        local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
+        local statPoolsSystem = Game.GetStatPoolsSystem()
+        local delaySystem = Game.GetDelaySystem()
+        local playerID = player:GetEntityID()
 
+        local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
         if (statusEffectName ~= nil) then
             statusEffectSystem:RemoveStatusEffect(playerID, statusEffectName)
         else
@@ -279,14 +249,19 @@ OpticalCamoManager.DeactivateOpticalCamo =
             statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffEpic")
             statusEffectSystem:RemoveStatusEffect(playerID, "BaseStatusEffect.OpticalCamoPlayerBuffLegendary")
         end
+
+        if (m_settingsManager:GetValue("opticalCamoNoDecay")) then
+            -- empty optical camo charges
+            statPoolsSystem:RequestSettingStatPoolValue(playerID, gamedataStatPoolType.OpticalCamoCharges, 0, player, true)
+        end
     end
 
 OpticalCamoManager.IsOpticalCamoActive =
     function(this, player)
-        local playerID = player:GetEntityID()
         local statusEffectSystem = Game.GetStatusEffectSystem()
-        local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
+        local playerID = player:GetEntityID()
 
+        local statusEffectName = this:GetOpticalCamoStatusEffectName(player)
         if (statusEffectName ~= nil) then
             return statusEffectSystem:HasStatusEffect(playerID, statusEffectName)
         else
@@ -335,19 +310,95 @@ OpticalCamoManager.GetOpticalCamoCharges =
 
 OpticalCamoManager.ApplySettings =
     function(this, player)
-        this:DumpPlayerStats(player)
+        this:ApplyDecayModifierSettings(player)
+        this:ApplyRegenModifierSettings(player)
+    end
 
-        registerPlayerStatsModifier(player, "OpticalCamoChargesDecayRate", "Multiplier", m_settingsManager:GetValue("opticalCamoChargesDecayRateModifier"))
+OpticalCamoManager.ApplyDecayModifierSettings =
+    function(this, player)
+        local statsSystem = Game.GetStatsSystem()
+        local statPoolsSystem = Game.GetStatPoolsSystem()
+        local playerID = player:GetEntityID()
 
-        if (m_settingsManager:GetValue("opticalCamoRechargeImmediate")) then
-            registerPlayerStatsModifier(player, "OpticalCamoChargesRegenRate", "Multiplier", 100)
-            registerPlayerStatsModifier(player, "OpticalCamoRechargeDuration", "Multiplier", 0.01)
+        local defOpticalCamoDuration = statsSystem:GetStatValue(playerID, "OpticalCamoDuration")
+        local defDecayModifierValuePerSec = (100 / defOpticalCamoDuration)
+
+        local decayModifier = StatPoolModifier.new()
+
+        decayModifier.enabled = true
+        decayModifier.rangeBegin = 0.00
+        decayModifier.rangeEnd = 100.00
+        decayModifier.delayOnChange = false
+
+        if (m_settingsManager:GetValue("opticalCamoNoDecay")) then
+            decayModifier.valuePerSec = 0
         else
-            registerPlayerStatsModifier(player, "OpticalCamoChargesRegenRate", "Multiplier", m_settingsManager:GetValue("opticalCamoChargesRegenRateModifier"))
-            registerPlayerStatsModifier(player, "OpticalCamoRechargeDuration", "Multiplier", (1 / m_settingsManager:GetValue("opticalCamoChargesRegenRateModifier")))
+            decayModifier.valuePerSec = (defDecayModifierValuePerSec * m_settingsManager:GetValue("opticalCamoChargesDecayRateModifier"))
         end
 
+        statPoolsSystem:RequestSettingModifier(playerID, gamedataStatPoolType.OpticalCamoCharges, gameStatPoolModificationTypes.Decay, decayModifier)
+    end
+
+OpticalCamoManager.ApplyRegenModifierSettings =
+    function(this, player)
+        local statsSystem = Game.GetStatsSystem()
+        local statPoolsSystem = Game.GetStatPoolsSystem()
+        local playerID = player:GetEntityID()
+
+        local defOpticalCamoRechargeDuration = statsSystem:GetStatValue(playerID, "OpticalCamoRechargeDuration")
+        local defRegenModifierValuePerSec = (100 / defOpticalCamoRechargeDuration)
+
+        local regenModifier = StatPoolModifier.new()
+
+        regenModifier.enabled = true
+        regenModifier.rangeBegin = 0.00
+        regenModifier.rangeEnd = 100.00
+        regenModifier.delayOnChange = false
+
+        if (m_settingsManager:GetValue("opticalCamoRechargeImmediate")) then
+            regenModifier.valuePerSec = 100000
+        else
+            regenModifier.valuePerSec = (defRegenModifierValuePerSec * m_settingsManager:GetValue("opticalCamoChargesRegenRateModifier"))
+        end
+
+        statPoolsSystem:RequestSettingModifier(playerID, gamedataStatPoolType.OpticalCamoCharges, gameStatPoolModificationTypes.Regeneration, regenModifier)
+    end
+
+OpticalCamoManager.ResetOpticalCamoModifiers =
+    function(this, player)
+        local statPoolsSystem = Game.GetStatPoolsSystem()
+        local playerID = player:GetEntityID()
+
+        statPoolsSystem:RequestResetingModifier(playerID, gamedataStatPoolType.OpticalCamoCharges, gameStatPoolModificationTypes.Decay)
+        statPoolsSystem:RequestResetingModifier(playerID, gamedataStatPoolType.OpticalCamoCharges, gameStatPoolModificationTypes.Regeneration)
+    end
+
+OpticalCamoManager.ResetOpticalCamoCharges =
+    function(this, player)
+        local statPoolsSystem = Game.GetStatPoolsSystem()
+        local playerID = player:GetEntityID()
+
+        -- reset stat pool to prevent permanent discharge-then-recharge cycle
+        -- that occurs after the modifiers have been applied when the pool is filled
+        player:SetStatPoolEnabled(gamedataStatPoolType.OpticalCamoCharges, gameStatPoolModificationTypes.Decay, false)
+        player:SetStatPoolEnabled(gamedataStatPoolType.OpticalCamoCharges, gameStatPoolModificationTypes.Regeneration, false)
+
+        -- fill optical camo charges
+        statPoolsSystem:RequestSettingStatPoolValue(playerID, gamedataStatPoolType.OpticalCamoCharges, 100, player, true)
+    end
+
+OpticalCamoManager.AttachPlayer =
+    function(this, player)
+        this:DeactivateOpticalCamo(player)
         this:DumpPlayerStats(player)
+    end
+
+OpticalCamoManager.DetachPlayer =
+    function(this, player)
+        this:ClearDelayedPlayerExitCombatEvents()
+        this:ResetOpticalCamoModifiers(player)
+        this:DeactivateOpticalCamo(player)
+        this:SetPlayerVisible(player)
     end
 
 OpticalCamoManager.SetPlayerInvisible =
@@ -381,11 +432,6 @@ OpticalCamoManager.MakePlayerExitCombat =
 
             hostileTarget:GetTargetTrackerComponent():DeactivateThreat(player)
         end
-    end
-
-OpticalCamoManager.UnregisterPlayerStatsModifier =
-    function(this, player)
-        unregisterPlayerStatsModifier(player)
     end
 
 OpticalCamoManager.ClearDelayedPlayerExitCombatEvents =

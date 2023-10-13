@@ -2,7 +2,7 @@
 -- Copyright (c) 2022-2023 Lukas Berger
 -- MIT License (See LICENSE.md)
 k_trace = false
-k_debug = false
+k_debug = true
 
 local OpticalCamoManager = require("./core/OpticalCamoManager")
 

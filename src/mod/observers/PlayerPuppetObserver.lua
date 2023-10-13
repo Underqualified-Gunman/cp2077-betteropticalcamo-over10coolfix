@@ -7,13 +7,7 @@ local LOGTAG = "PlayerPuppetObserver"
 --- apply settings (status modifiers, etc.) on (re)-load
 function observeOnGameAttached(this)
     print_trace(LOGTAG, "entering Observer<PlayerPupper::OnGameAttached>")
-
-    local opticalCamoManager = GetOpticalCamoManager()
-
-    opticalCamoManager:DumpPlayerStats(this)
-    opticalCamoManager:ApplySettings(this)
-    opticalCamoManager:DumpPlayerStats(this)
-
+    GetOpticalCamoManager():AttachPlayer(this)
     print_trace(LOGTAG, "exiting Observer<PlayerPupper::OnGameAttached>")
 end
 
@@ -100,12 +94,7 @@ end
 --- reset registered status-modifiers, etc. on reload
 function observeOnDetach(this)
     print_trace(LOGTAG, "entering Observer<PlayerPupper::OnDetach>")
-
-    local opticalCamoManager = GetOpticalCamoManager()
-
-    opticalCamoManager:UnregisterPlayerStatsModifier(this)
-    opticalCamoManager:ClearDelayedPlayerExitCombatEvents()
-
+    GetOpticalCamoManager():DetachPlayer(this)
     print_trace(LOGTAG, "exiting Observer<PlayerPupper::OnDetach>")
 end
 
@@ -120,11 +109,11 @@ end
 
 PlayerPuppetObserver.Initialize =
     function()
-        ObserveBefore("PlayerPuppet", "OnGameAttached", observeOnGameAttached)
-        ObserveBefore("PlayerPuppet", "OnAction", observeOnAction)
-        ObserveBefore("PlayerPuppet", "OnStatusEffectApplied", observeOnStatusEffectApplied)
-        ObserveBefore("PlayerPuppet", "OnStatusEffectRemoved", observeOnStatusEffectRemoved)
-        ObserveBefore("PlayerPuppet", "OnDetach", observeOnDetach)
+        ObserveAfter("PlayerPuppet", "OnGameAttached", observeOnGameAttached)
+        ObserveAfter("PlayerPuppet", "OnAction", observeOnAction)
+        ObserveAfter("PlayerPuppet", "OnStatusEffectApplied", observeOnStatusEffectApplied)
+        ObserveAfter("PlayerPuppet", "OnStatusEffectRemoved", observeOnStatusEffectRemoved)
+        ObserveAfter("PlayerPuppet", "OnDetach", observeOnDetach)
     end
 
 return PlayerPuppetObserver

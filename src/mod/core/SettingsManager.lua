@@ -7,7 +7,7 @@ local k_defaultSettings = {
     enableToggling = true,
     opticalCamoChargesDecayRateModifier = 1,
     opticalCamoChargesRegenRateModifier = 1,
-    opticalCamoKeepActiveAfterDepletion = false,
+    opticalCamoNoDecay = false,
     opticalCamoRechargeImmediate = false,
     combatCloak = false,
     combatCloakDelay = 1.5
@@ -83,7 +83,7 @@ function createSettingsMenu()
         localizationManager:GetTranslation("settings.opticalCamoChargesRegenRateModifier.label"),
         localizationManager:GetTranslation("settings.opticalCamoChargesRegenRateModifier.description"),
         .1,
-        20,
+        50,
         0.1,
         "%.1f",
         m_activeSettings.opticalCamoChargesRegenRateModifier,
@@ -95,12 +95,12 @@ function createSettingsMenu()
     -- nativeSettings.addSwitch(path, label, desc, currentValue, defaultValue, callback, optionalIndex)
     nativeSettings.addSwitch(
         "/BetterOpticalCamo/Core",
-        localizationManager:GetTranslation("settings.opticalCamoKeepActiveAfterDepletion.label"),
-        localizationManager:GetTranslation("settings.opticalCamoKeepActiveAfterDepletion.description"),
-        m_activeSettings.opticalCamoKeepActiveAfterDepletion,
-        k_defaultSettings.opticalCamoKeepActiveAfterDepletion,
+        localizationManager:GetTranslation("settings.opticalCamoNoDecay.label"),
+        localizationManager:GetTranslation("settings.opticalCamoNoDecay.description"),
+        m_activeSettings.opticalCamoNoDecay,
+        k_defaultSettings.opticalCamoNoDecay,
         function(state)
-            m_pendingSettings.opticalCamoKeepActiveAfterDepletion = state
+            m_pendingSettings.opticalCamoNoDecay = state
         end)
 
     -- nativeSettings.addSwitch(path, label, desc, currentValue, defaultValue, callback, optionalIndex)
@@ -179,11 +179,17 @@ SettingsManager.ApplyDefaultSettings =
 
 SettingsManager.ApplyPendingSettings =
     function(this)
+        local opticalCamoManager = GetOpticalCamoManager()
+        local player = Game.GetPlayer()
+
         for name, value in pairs(m_pendingSettings) do
             m_activeSettings[name] = value
         end
 
-        GetOpticalCamoManager():ApplySettings(Game.GetPlayer())
+        opticalCamoManager:ResetOpticalCamoModifiers(player)
+        opticalCamoManager:ApplySettings(player)
+        opticalCamoManager:ResetOpticalCamoCharges(player)
+        opticalCamoManager:DumpPlayerStats(player)
     end
 
 SettingsManager.LoadFromFile =
