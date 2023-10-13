@@ -1,6 +1,10 @@
 Better Optical Camo
 -----
 
+### Version 2.2.0
+* change implementation of depletion/regeneration modifier logic
+* fix small bug in "Custom Quickslots" compatibility-addon
+
 ### Version 2.1.4
 * only change gadget state if optical camois equipped
 * fix "Custom Quickslots" compatibility-addon
