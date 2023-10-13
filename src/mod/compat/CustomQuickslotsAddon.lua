@@ -23,6 +23,11 @@ CustomQuickslotsAddon.Initialize =
 
                         if (this:IsOpticalCamoCyberwareAbility() and opticalCamoManager:IsOpticalCamoActive(player)) then
                             opticalCamoManager:DeactivateOpticalCamo(player)
+                        else
+                            local opticalCamoCharges = opticalCamoManager:GetOpticalCamoCharges(player)
+                            if (opticalCamoCharges > 0) then
+                                opticalCamoManager:ActivateOpticalCamo(player)
+                            end
                         end
                     end
 
