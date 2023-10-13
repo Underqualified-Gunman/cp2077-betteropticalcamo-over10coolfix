@@ -165,7 +165,7 @@ OpticalCamoManager.Update =
 
         if (player ~= nil) then
             local opticalCamoCharges = this:GetOpticalCamoCharges(player)
-            if ((opticalCamoCharges < 0.01) and (not m_settingsManager:GetValue("opticalCamoKeepActiveAfterDepletion"))) then
+            if (opticalCamoCharges < 0.01) then
                 this:DeactivateOpticalCamo(player)
             end
         end
