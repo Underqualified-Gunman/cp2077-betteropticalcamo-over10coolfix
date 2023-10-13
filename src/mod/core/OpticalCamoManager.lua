@@ -189,10 +189,11 @@ OpticalCamoManager.Shutdown =
 
         if ((player ~= nil) and (this:IsOpticalCamoActive(player))) then
             this:DeactivateOpticalCamo(player)
+            this:ResetOpticalCamoModifiers(player)
+            this:ResetOpticalCamoCharges(player)
             this:SetPlayerVisible(player)
         end
 
-        this:ResetOpticalCamoModifiers(player)
         this:ClearDelayedPlayerExitCombatEvents()
 
         for _, observer in pairs(m_observers) do
