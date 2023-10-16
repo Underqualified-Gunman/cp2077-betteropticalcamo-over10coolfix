@@ -1,6 +1,10 @@
 Better Optical Camo
 -----
 
+### Version 2.2.1
+* properly support toggling with Custom Quickslots
+* some other small changes and optimizations
+
 ### Version 2.2.0
 * change implementation of depletion/regeneration modifier logic
 * fix small bug in "Custom Quickslots" compatibility-addon
